@@ -65,11 +65,13 @@ def calculate(total_mem, max_connections, pg_version):
     else:
       # http://www.postgresql.org/docs/current/static/release-9-5.html
       # max_wal_size = (3 * checkpoint_segments) * 16MB
-      pg_conf['min_wal_size'] = '2GB'
+      pg_conf['min_wal_size'] = '1GB'           # decreased from 2GB -> 1GB  for small extracts
       pg_conf['max_wal_size'] = '4GB'
+      # http://www.cybertec.at/2016/06/postgresql-underused-features-wal-compression/
+      pg_conf['wal_compression'] = 'on'
     pg_conf['checkpoint_completion_target'] = 0.9
     pg_conf['wal_buffers'] = to_bytes(pg_conf['shared_buffers']*0.03, 16*M)  # 3% of shared_buffers, max of 16MB.
-    pg_conf['default_statistics_target'] = 100
+    pg_conf['default_statistics_target'] = 1000
     pg_conf['synchronous_commit'] = 'off'
     pg_conf['vacuum_cost_delay'] = 50
     pg_conf['wal_writer_delay'] = '10s'
@@ -92,7 +94,7 @@ def usage_and_exit():
 
 def main():
     mem = None
-    max_connections = 100
+    max_connections = 30
     have_ssd = False
     enable_stat = False
     listen_addresses = 'localhost'
@@ -127,7 +129,7 @@ def main():
         mem = available_memory()
 
     print("#")
-    print("# dCache's chimera friendly configuration fot PostgreSQL %s" % pg_version)
+    print("# OSM2Vectortiles friendly configuration for PostgreSQL %s" % pg_version)
     print("#")
     print("# Config for %s memory and %d connections" % (to_size_string(mem), max_connections))
     print("#")

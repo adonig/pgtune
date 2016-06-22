@@ -1,63 +1,52 @@
 pgtune
 ======
 
-A tool to optimize PostgreSQL for dCache namespace or any other *on line transaction processing*
-(OLTP) workloads.
+A tool to optimize PostgreSQL for *[OSM2Vectortiles](http://osm2vectortiles.org/)* (DW) workloads.
 
 Usage:
 ------
 ```
-$ ./pgtune.py >> /var/lib/pgsql/9.x/data/postgresql.conf
+$ ./pgtune.py -c 20 ->> /var/lib/pgsql/9.x/data/postgresql.conf
 ```
 
 Example output:
 --------------
 ```
-$ ./pgtune.py
+./pgtune.py -c 20 -S
 #
-# dCache's chimera friendly configuration
+# OSM2Vectortiles friendly configuration for PostgreSQL 9.5
 #
-# Config for 7GB memory and 100 connections
+# Config for 7GB memory and 20 connections
 #
 checkpoint_completion_target = 0.9
-checkpoint_segments = 64
-default_statistics_target = 100
+default_statistics_target = 1000
 effective_cache_size = 5GB
-maintenance_work_mem = 496MB
-max_connections = 100
+maintenance_work_mem = 486MB
+max_connections = 20
+max_wal_size = 4GB
+min_wal_size = 1GB
 shared_buffers = 1GB
 synchronous_commit = off
 vacuum_cost_delay = 50
 wal_buffers = 16MB
+wal_compression = on
 wal_writer_delay = 10s
-work_mem = 19MB
+work_mem = 97MB
 #
 # other goodies
 #
-log_line_prefix = '%m <%d %u %r> %%'
+log_line_prefix = '%m <%d %u %a %r> %%'
 log_temp_files = 0
 log_min_duration_statement = 20
 log_checkpoints = on
 log_lock_waits = on
 listen_addresses = 'localhost'
-```
-OS Configuration
-----------------
-For optimal DB performance an optimal hardware and OS configuration required.
-On RHEL7 based system it's ideal to use **tuned** profile.
-
-Copy **tuned.conf** file into **/usr/lib/tuned/postgres-db-server/tuned.conf** and select the
-profile:
+shared_preload_libraries = 'pg_stat_statements'
 
 ```
-$ yum install tuned
-$ wget -O /usr/lib/tuned/postgres-db-server/tuned.conf \
-   https://raw.githubusercontent.com/kofemann/pgtune/master/tuned.conf
-$ tuned-adm profile postgres-db-server
-```
 
-**IMPORTANT**: don't forget to do benchmarks defore and after.
 
 LICENSE
 -------
-This work is published under [public domain](https://creativecommons.org/licenses/publicdomain/) license.
+This work is based on https://github.com/kofemann/pgtune and published under [public domain](https://creativecommons.org/licenses/publicdomain/) license.
+
